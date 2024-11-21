@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Quiz App</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Interactive Quiz</h1>
+    
+    <!-- Category Selection -->
+    <div id="category-selection">
+      <h2>Select a Category</h2>
+      <select id="category">
+        <option value="general">G-K</option>
+        <option value="physics">Physics</option>
+        <option value="chemistry">Chemistry</option>
+        <option value="math">Math</option>
+        <option value="english">English</option>
+      </select>
+      <button id="startBtn" class="btn-primary">Start Quiz</button>
+    </div>
+
+    <!-- Quiz Section -->
+    <div id="quiz" class="hidden">
+      <div id="question" class="question-box">Question will appear here</div>
+      <div id="choices" class="choices"></div>
+      
+      <!-- Timer and Feedback -->
+      <div class="info">
+        <span id="timer">Time: 60:00</span>
+        <div class="progress-bar">
+          <div id="progress"></div>
+        </div>
+        <span id="score">Score: 0</span>
+      </div>
+      <div id="feedback" class="hidden"></div>
+      
+      <button id="nextBtn" class="btn-primary" disabled>Next Question</button>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result" class="hidden">
+      <h2>Your Score</h2>
+      <p id="finalScore"></p>
+      <button id="restartBtn" class="btn-primary">Restart Quiz</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
