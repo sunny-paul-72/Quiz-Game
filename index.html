@@ -1,56 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Quiz App</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
-  <link rel="stylesheet" href="styles.css">
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="quiz-container">
-    <h1>Interactive Quiz</h1>
-    
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="quiz-container">
+        <h1>Welcome to the Quiz App!</h1>
+        <button id="welcomeStartBtn">Start</button>
+    </div>
+
     <!-- Category Selection -->
-    <div id="category-selection">
-      <h2>Select a Category</h2>
-      <select id="category">
-        <option value="general">G-K</option>
-        <option value="physics">Physics</option>
-        <option value="chemistry">Chemistry</option>
-        <option value="math">Math</option>
-        <option value="english">English</option>
-      </select>
-      <button id="startBtn" class="btn-primary">Start Quiz</button>
+    <div id="category-selection" class="quiz-container hidden">
+        <h2>Select a Category</h2>
+        <select id="category">
+            <option value="general">General Knowledge</option>
+            <option value="physics">Physics</option>
+            <option value="hindi">Hindi</option>
+            <option value="english">English</option>
+            <option value="math">Math</option>
+        </select>        
+        <button id="startBtn">Start Quiz</button>
     </div>
 
-    <!-- Quiz Section -->
-    <div id="quiz" class="hidden">
-      <div id="question" class="question-box">Question will appear here</div>
-      <div id="choices" class="choices"></div>
-      
-      <!-- Timer and Feedback -->
-      <div class="info">
-        <span id="timer">Time: 60:00</span>
+    <!-- Quiz Screen -->
+    <div id="quiz" class="quiz-container hidden">
+        <div id="timer">60:00</div>
+        <h2 id="question">Question Text</h2>
+        <div id="choices" class="choices"></div>
         <div class="progress-bar">
-          <div id="progress"></div>
+            <div id="progress"></div>
         </div>
-        <span id="score">Score: 0</span>
-      </div>
-      <div id="feedback" class="hidden"></div>
-      
-      <button id="nextBtn" class="btn-primary" disabled>Next Question</button>
+        <p id="questionCounter">Question 1 of 10</p>
+        <button id="prevBtn" disabled>Previous</button>
+        <button id="nextBtn" disabled>Next</button>
     </div>
 
-    <!-- Result Section -->
-    <div id="result" class="hidden">
-      <h2>Your Score</h2>
-      <p id="finalScore"></p>
-      <button id="restartBtn" class="btn-primary">Restart Quiz</button>
+    <!-- Result Screen -->
+    <div id="result" class="quiz-container hidden">
+        <h2>Quiz Complete!</h2>
+        <p id="finalScore">Your score: 0 / 0</p>
+        <button id="restartBtn">Restart Quiz</button>
+        <button id="showAnswersBtn">Show Answers</button>
+        <div id="answersList" class="hidden"></div>
     </div>
-  </div>
-  <script src="script.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>

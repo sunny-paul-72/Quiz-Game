@@ -1,167 +1,238 @@
 const questions = {
     general: [
-      { question: "What is the capital of France?", choices: ["Berlin", "Madrid", "Paris", "Lisbon"], answer: "Paris" },
-      { question: "Which planet is known as the Red Planet?", choices: ["Earth", "Mars", "Jupiter", "Saturn"], answer: "Mars" },
-      // More questions...
+        { question: "What is the capital of France?", choices: ["Berlin", "Madrid", "Paris", "Lisbon"], answer: "Paris" },
+        { question: "Which planet is known as the Red Planet?", choices: ["Earth", "Mars", "Jupiter", "Saturn"], answer: "Mars" },
     ],
     physics: [
-      { question: "What is the chemical symbol for water?", choices: ["H2O", "CO2", "O2", "H2"], answer: "H2O" },
-      { question: "Who developed the theory of relativity?", choices: ["Isaac Newton", "Albert Einstein", "Nikola Tesla", "Marie Curie"], answer: "Albert Einstein" },
-      // More questions...
+        { question: "What is the chemical symbol for water?", choices: ["H2O", "CO2", "O2", "H2"], answer: "H2O" },
+        { question: "Who developed the theory of relativity?", choices: ["Isaac Newton", "Albert Einstein", "Nikola Tesla", "Marie Curie"], answer: "Albert Einstein" },
     ],
-    chemistry: [
-      { question: "Who was the first president of the USA?", choices: ["George Washington", "Abraham Lincoln", "Thomas Jefferson", "John Adams"], answer: "George Washington" },
-      { question: "In what year did World War II end?", choices: ["1945", "1918", "1939", "1963"], answer: "1945" },
-      // More questions...
-    ],
-    math: [
-        { question: "What is 2+2?", choices: ["2", "3", "4", "5"], answer: "4" },
-        { question: "What is 5x5?", choices: ["15", "20", "25", "30"], answer: "25" },
-        // More questions...
+    hindi: [
+        { question: "हिंदी वर्णमाला में कितने स्वर होते हैं?", choices: ["10", "12", "14", "16"], answer: "12" },
+        { question: "भारत के पहले प्रधानमंत्री का नाम क्या था?", choices: ["महात्मा गांधी", "जवाहरलाल नेहरू", "सरदार पटेल", "सुभाष चंद्र बोस"], answer: "जवाहरलाल नेहरू" },
     ],
     english: [
-        { question: "What is the synonym of 'happy'?", choices: ["Sad", "Joyful", "Angry", "Tired"], answer: "Joyful" },
-        { question: "Which word means 'to run'?", choices: ["Sprint", "Sit", "Stand", "Crawl"], answer: "Sprint" },
-        // More questions...
-    ]
+        { question: "What is the synonym of 'Happy'?", choices: ["Sad", "Elated", "Angry", "Tired"], answer: "Elated" },
+        { question: "What is the antonym of 'Quick'?", choices: ["Fast", "Slow", "Swift", "Rapid"], answer: "Slow" },
+    ],
+    math: [
+        { question: "What is 5 + 3?", choices: ["5", "6", "8", "9"], answer: "8" },
+        { question: "What is 12 x 12?", choices: ["120", "124", "144", "150"], answer: "144" },
+    ],
 };
 
-// Timer settings in minutes (60 minutes = 60)
-const categoryTimes = { 
-  general: 60,  
-  physics: 60,  
-  chemistry: 60, 
-  math: 60,     
-  english: 60   
+const timings = {
+    general: 60 * 60,  // 60 minutes
+    physics: 50 * 60,  // 50 minutes
+    hindi: 40 * 60,    // 40 minutes
+    english: 30 * 60,  // 30 minutes
+    math: 20 * 60,     // 20 minutes
 };
 
-let score = 0;
 let currentQuestionIndex = 0;
-let timeLeft = 0;
-let timerInterval = null;
+let score = 0;
 let selectedCategory = null;
+let selectedAnswers = [];
+let timerInterval;
+let timeRemaining = 60 * 60; // Default 60 minutes
 
-const categorySelection = document.getElementById('category-selection');
-const quizContainer = document.getElementById('quiz');
-const resultContainer = document.getElementById('result');
-const questionElement = document.getElementById('question');
-const choicesElement = document.getElementById('choices');
-const scoreElement = document.getElementById('score');
-const timerElement = document.getElementById('timer');
-const feedbackElement = document.getElementById('feedback');
-const nextBtn = document.getElementById('nextBtn');
-const restartBtn = document.getElementById('restartBtn');
-const startBtn = document.getElementById('startBtn');
-const progressElement = document.getElementById('progress');
-const finalScoreElement = document.getElementById('finalScore');
+// DOM Elements
+const screens = {
+    welcome: document.getElementById('welcome-screen'),
+    categorySelection: document.getElementById('category-selection'),
+    quiz: document.getElementById('quiz'),
+    result: document.getElementById('result'),
+};
+const elements = {
+    categoryDropdown: document.getElementById('category'),
+    startBtn: document.getElementById('startBtn'),
+    nextBtn: document.getElementById('nextBtn'),
+    prevBtn: document.getElementById('prevBtn'),
+    restartBtn: document.getElementById('restartBtn'),
+    showAnswersBtn: document.getElementById('showAnswersBtn'),
+    question: document.getElementById('question'),
+    choices: document.getElementById('choices'),
+    questionCounter: document.getElementById('questionCounter'),
+    progressBar: document.getElementById('progress'),
+    finalScore: document.getElementById('finalScore'),
+    timer: document.getElementById('timer'),
+    answersList: document.getElementById('answersList'),
+};
 
-// Event listener for category selection
-startBtn.addEventListener('click', () => {
-    selectedCategory = document.getElementById('category').value;
-    categorySelection.classList.add('hidden');
-    quizContainer.classList.remove('hidden');
-    loadQuestion();
-    startTimer();
-});
-
-// Load current question
-function loadQuestion() {
-    const currentQuestion = questions[selectedCategory][currentQuestionIndex];
-    questionElement.textContent = currentQuestion.question;
-    choicesElement.innerHTML = '';
-    currentQuestion.choices.forEach(choice => {
-        const button = document.createElement('button');
-        button.textContent = choice;
-        button.addEventListener('click', () => handleAnswer(choice));
-        choicesElement.appendChild(button);
-    });
-    nextBtn.disabled = true;
-    feedbackElement.classList.add('hidden');
+// Helper functions
+function switchScreen(from, to) {
+    from.classList.add('hidden');
+    to.classList.remove('hidden');
 }
 
-// Handle user's answer
-function handleAnswer(selectedChoice) {
-    const currentQuestion = questions[selectedCategory][currentQuestionIndex];
-    const allButtons = choicesElement.querySelectorAll('button');
-    allButtons.forEach(button => button.disabled = true);
-
-    // Change the background color of the clicked button to #bcf5d4
-    allButtons.forEach(button => {
-        if (button.textContent === selectedChoice) {
-            button.style.backgroundColor = '#f57600';  // Set the background color
-        }
-    });
-
-    if (selectedChoice === currentQuestion.answer) {
-        score++;
-        feedbackElement.classList.remove('hidden');
-        allButtons.forEach(button => {
-            if (button.textContent === currentQuestion.answer) {
-                button.classList.add('correct');
-            }
-        });
-    } else {
-        feedbackElement.classList.remove('hidden');
-        allButtons.forEach(button => {
-            if (button.textContent === currentQuestion.answer) {
-                button.classList.add('correct');
-            } else if (button.textContent === selectedChoice) {
-                button.classList.add('incorrect');
-            }
-        });
-    }
-
-    scoreElement.textContent = `Score: ${score}`;
-    nextBtn.disabled = false;
-}
-
-// Next Question
-nextBtn.addEventListener('click', () => {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions[selectedCategory].length) {
-        loadQuestion();
-        startTimer();
-    } else {
-        showResult();
-    }
-});
-
-// Show Result
-function showResult() {
-    quizContainer.classList.add('hidden');
-    resultContainer.classList.remove('hidden');
-    finalScoreElement.textContent = `You scored ${score} out of ${questions[selectedCategory].length}`;
-}
-
-// Restart Quiz
-restartBtn.addEventListener('click', () => {
+function startQuiz() {
+    selectedCategory = elements.categoryDropdown.value;
     currentQuestionIndex = 0;
     score = 0;
-    resultContainer.classList.add('hidden');
-    categorySelection.classList.remove('hidden');
-});
+    selectedAnswers = [];
+    timeRemaining = timings[selectedCategory]; // Set timer according to category
+    elements.timer.textContent = formatTime(timeRemaining);
 
-// Timer function
-function startTimer() {
-    timeLeft = categoryTimes[selectedCategory] * 60;  // Convert minutes to seconds
-    progressElement.style.width = '100%';
-    updateTimerDisplay(timeLeft);
+    // Shuffle questions in the selected category
+    shuffle(questions[selectedCategory]);
+
+    startTimer();
+    loadQuestion();
+    switchScreen(screens.categorySelection, screens.quiz);
+}
+
+function loadQuestion() {
+    const questionData = questions[selectedCategory][currentQuestionIndex];
+    elements.question.textContent = questionData.question;
+    elements.choices.innerHTML = '';
+
+    questionData.choices.forEach((choice, index) => {
+        const choiceBtn = document.createElement('button');
+        choiceBtn.classList.add('choice-btn');
+        choiceBtn.textContent = `${String.fromCharCode(65 + index)}. ${choice}`; // A, B, C, D
+
+        // If the answer was previously selected, mark it
+        if (selectedAnswers[currentQuestionIndex] === choice) {
+            choiceBtn.classList.add('selected');
+        }
+
+        choiceBtn.addEventListener('click', () => handleAnswer(choice, choiceBtn));
+        elements.choices.appendChild(choiceBtn);
+    });
+
+    updateProgress(currentQuestionIndex + 1, questions[selectedCategory].length);
+    elements.questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${questions[selectedCategory].length}`;
+    elements.nextBtn.disabled = selectedAnswers[currentQuestionIndex] === undefined;
+
+    // Enable or disable the previous button based on the current question index
+    elements.prevBtn.disabled = currentQuestionIndex === 0;
+}
+
+function handleAnswer(selectedChoice, button) {
+    const questionData = questions[selectedCategory][currentQuestionIndex];
+
+    // Remove 'selected' class from all buttons
+    const buttons = elements.choices.querySelectorAll('button');
+    buttons.forEach(btn => btn.classList.remove('selected'));
+
+    // Add 'selected' class to the clicked button
+    button.classList.add('selected');
+
+    // Save the selected answer
+    selectedAnswers[currentQuestionIndex] = selectedChoice;
+
+    // Update score if answer is correct
+    if (selectedChoice === questionData.answer) {
+        score++;
+    }
+
+    // Enable the 'Next' button after selection
+    elements.nextBtn.disabled = false;
+}
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function loadNextQuestion() {
+    if (currentQuestionIndex < questions[selectedCategory].length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function loadPreviousQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+    }
+}
+
+function showResults() {
     clearInterval(timerInterval);
+    elements.finalScore.textContent = `Your score: ${score} / ${questions[selectedCategory].length}`;
+    switchScreen(screens.quiz, screens.result);
+}
+
+function toggleAnswers() {
+    if (elements.answersList.classList.contains('hidden')) {
+        populateAnswersList();
+        elements.answersList.classList.remove('hidden');
+    } else {
+        elements.answersList.classList.add('hidden');
+    }
+}
+
+function populateAnswersList() {
+    elements.answersList.innerHTML = ''; // Clear the list before adding new items
+
+    questions[selectedCategory].forEach((q, index) => {
+        const answerItem = document.createElement('div');
+        answerItem.classList.add('answer-item');
+        const selectedAnswer = selectedAnswers[index];
+        const correctAnswer = q.answer;
+
+        // Add styles based on correct or incorrect answer
+        if (selectedAnswer === correctAnswer) {
+            answerItem.innerHTML = `
+                <strong>Q${index + 1}: </strong>${q.question}<br>
+                <strong>Your answer: </strong><span class="correct">${selectedAnswer}</span><br>
+                <strong>Correct answer: </strong><span class="correct">${correctAnswer}</span>
+            `;
+        } else {
+            answerItem.innerHTML = `
+                <strong>Q${index + 1}: </strong>${q.question}<br>
+                <strong>Your answer: </strong><span class="incorrect">${selectedAnswer || 'Not answered'}</span><br>
+                <strong>Correct answer: </strong><span class="correct">${correctAnswer}</span>
+            `;
+        }
+
+        elements.answersList.appendChild(answerItem);
+    });
+}
+
+function updateProgress(current, total) {
+    const percentage = (current / total) * 100;
+    elements.progressBar.style.width = `${percentage}%`;
+}
+
+function startTimer() {
     timerInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay(timeLeft);
-        progressElement.style.width = `${(timeLeft / (categoryTimes[selectedCategory] * 60)) * 100}%`;
-        if (timeLeft === 0) {
-            clearInterval(timerInterval);
-            feedbackElement.textContent = "Time's up!";
-            feedbackElement.classList.remove('hidden');
-            nextBtn.disabled = false;
+        timeRemaining--;
+        elements.timer.textContent = formatTime(timeRemaining);
+        if (timeRemaining === 0) {
+            stopTimer();
+            showResults();
         }
     }, 1000);
 }
 
-function updateTimerDisplay(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    timerElement.textContent = `Time: ${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+function stopTimer() {
+    clearInterval(timerInterval);
+    elements.timer.textContent = "Time's up!";
 }
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secondsLeft = seconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(secondsLeft).padStart(2, '0')}`;
+}
+
+// Event listeners
+elements.startBtn.addEventListener('click', startQuiz);
+elements.nextBtn.addEventListener('click', loadNextQuestion);
+elements.prevBtn.addEventListener('click', loadPreviousQuestion);
+elements.restartBtn.addEventListener('click', () => {
+    score = 0;
+    selectedAnswers = [];
+    elements.finalScore.textContent = "";
+    switchScreen(screens.result, screens.categorySelection);
+});
+elements.showAnswersBtn.addEventListener('click', toggleAnswers);
+
+document.getElementById('welcomeStartBtn').addEventListener('click', () => switchScreen(screens.welcome, screens.categorySelection));
