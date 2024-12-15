@@ -62,6 +62,7 @@ const elements = {
 // Helper functions
 function switchScreen(from, to) {
     from.classList.add('hidden');
+    
     to.classList.remove('hidden');
 }
 
@@ -102,7 +103,6 @@ function loadQuestion() {
 
     updateProgress(currentQuestionIndex + 1, questions[selectedCategory].length);
     elements.questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${questions[selectedCategory].length}`;
-    elements.nextBtn.disabled = selectedAnswers[currentQuestionIndex] === undefined;
 
     // Enable or disable the previous button based on the current question index
     elements.prevBtn.disabled = currentQuestionIndex === 0;
@@ -126,9 +126,10 @@ function handleAnswer(selectedChoice, button) {
         score++;
     }
 
-    // Enable the 'Next' button after selection
+    // Always enable the 'Next' button (without selection check)
     elements.nextBtn.disabled = false;
 }
+
 
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -163,8 +164,10 @@ function toggleAnswers() {
     if (elements.answersList.classList.contains('hidden')) {
         populateAnswersList();
         elements.answersList.classList.remove('hidden');
+        showAnswersBtn.innerHTML="Hide Answers"
     } else {
         elements.answersList.classList.add('hidden');
+        showAnswersBtn.innerHTML="Show Answers"
     }
 }
 
